@@ -15,7 +15,6 @@ services:
 
         bind:
             $message: '%hello_message%'
-            App\Service\SomeInterface: '@some_service'
 
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
@@ -35,3 +34,7 @@ services:
 #    App\Service\Greeting:
 #        arguments:
 #            $message: '%hello_message%'
+
+    app.greeting:
+        public: true
+        alias: App\Service\Greeting
