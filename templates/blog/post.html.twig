@@ -3,6 +3,8 @@
 {% block title %}Blog Post!{% endblock %}
 {% block body %}
     <p>ID {{ id }}</p>
-    <h3>{{ post.title }}</h3>
+    <h3>{{ post.title | upper }}</h3>
     <p>{{ post.text }}</p>
+    <p>{{ post.date | date }}</p>
+    <p> {{  560 | price }}</p>
 {% endblock %}
