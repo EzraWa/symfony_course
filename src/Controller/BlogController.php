@@ -8,11 +8,10 @@
 
 namespace App\Controller;
 
-use App\Service\Greeting;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
  * @Route("/blog")
@@ -23,28 +22,74 @@ class BlogController
 {
 
     /**
-     * @var Greeting
-     */
-    private $greeting;
-    /**
      * @var \Twig_Environment
      */
     private $twig;
+    /**
+     * @var SessionInterface
+     */
+    private $session;
 
-    public function __construct(Greeting $greeting, \Twig_Environment $twig)
+    public function __construct(\Twig_Environment $twig, SessionInterface $session)
     {
-        $this->greeting = $greeting;
         $this->twig = $twig;
+        $this->session = $session;
     }
 
     /**
      * @Route("/{name}", name="blog_index")
-     * @param Request $request
+     * @param $name
      * @return \Symfony\Component\HttpFoundation\Response
+     * @throws \Twig_Error_Loader
+     * @throws \Twig_Error_Runtime
+     * @throws \Twig_Error_Syntax
      */
     public function index($name)
     {
-        $html = $this->twig->render('base.html.twig', ['message' => $this->greeting->greet($name)]);
+        $html = $this->twig->render(
+            'blog/index.html.twig',
+            [
+                'posts' => $this->session->get('posts')
+            ]
+        );
+
+        return new Response($html);
+    }
+
+    /**
+     * @Route("/add", name="blog_add")
+     */
+    public function add()
+    {
+
+        $posts = $this->session->get('posts');
+        $posts[uniqid()] = [
+            'title' => 'A random title ' . rand(1, 500),
+            'text' => 'Some random text nr ' . rand(1, 500),
+        ];
+        $this->session->set('posts', $posts);
+
+    }
+
+    /**
+     * @Route("/show/{id}", name="blog_show")
+     */
+    public function show($id)
+    {
+        $posts = $this->session->get('posts');
+
+        if (is_null($posts) || false == isset($posts[$id])) {
+            throw new NotFoundHttpException('Post not found');
+        }
+
+        $html = $this->twig->render(
+            'blog/post.html.twig',
+            [
+                'id' => $id,
+                'post' => $posts[$id]
+            ]
+        );
+
         return new Response($html);
 
     }
