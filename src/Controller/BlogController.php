@@ -9,9 +9,11 @@
 namespace App\Controller;
 
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Routing\RouterInterface;
 
 /**
  * @Route("/blog")
@@ -29,22 +31,31 @@ class BlogController
      * @var SessionInterface
      */
     private $session;
+    /**
+     * @var RouterInterface
+     */
+    private $router;
 
-    public function __construct(\Twig_Environment $twig, SessionInterface $session)
+    public function __construct(
+        \Twig_Environment $twig,
+        SessionInterface $session,
+        RouterInterface $router
+    )
     {
         $this->twig = $twig;
         $this->session = $session;
+        $this->router = $router;
     }
 
     /**
-     * @Route("/{name}", name="blog_index")
+     * @Route("/", name="blog_index")
      * @param $name
      * @return \Symfony\Component\HttpFoundation\Response
      * @throws \Twig_Error_Loader
      * @throws \Twig_Error_Runtime
      * @throws \Twig_Error_Syntax
      */
-    public function index($name)
+    public function index()
     {
         $html = $this->twig->render(
             'blog/index.html.twig',
@@ -68,6 +79,8 @@ class BlogController
             'text' => 'Some random text nr ' . rand(1, 500),
         ];
         $this->session->set('posts', $posts);
+
+        return new RedirectResponse($this->router->generate('blog_index'));
 
     }
 

@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        {% block stylesheets %}{% endblock %}
-    </head>
-    <body>
-        {% block body %}
-            {{ message }}
-        {% endblock %}
-        {% block javascripts %}{% endblock %}
-    </body>
-</html>
+{% extends 'base.html.twig' %}
+
+{% block title %}Blog Post!{% endblock %}
+{% block body %}
+    <p>ID {{ id }}</p>
+    <h3>{{ post.title }}</h3>
+    <p>{{ post.text }}</p>
+{% endblock %}
